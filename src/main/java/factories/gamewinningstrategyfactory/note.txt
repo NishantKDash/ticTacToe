@@ -1,0 +1,3 @@
+We do not need to create gamewinningstrategy factory as during creating a instance of Game class
+using the builder of that class, the client will create different game winning strategies and add that
+to a registry and use them. Also we can use the factory.
