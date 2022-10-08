@@ -6,4 +6,9 @@ public class Symbol {
     {
         this.character = character;
     }
+
+    public char getCharacter()
+    {
+        return character;
+    }
 }

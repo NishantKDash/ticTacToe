@@ -1,5 +1,6 @@
 package main.java.models;
 
+import main.java.exceptions.EmptyMovesUndoOperationException;
 import main.java.exceptions.MinimumPlayerException;
 import main.java.exceptions.MinimumWinningStrategyException;
 import main.java.exceptions.MultipleBotsException;
@@ -17,12 +18,68 @@ public class Game {
     private GameStatus gameStatus;
     private Player winner;
 
+    private int numberOfFilledCells;
+
     private Game(){
         this.players = new ArrayList<>();
         this.moves = new ArrayList<>();
         this.gameWinningStrategies = new ArrayList<>();
         this.lastMovedPlayerIndex = -1;
         this.gameStatus = GameStatus.IN_PROGRESS;
+        this.numberOfFilledCells = 0;
+        this.winner = null;
+    }
+
+    public void makeMove()
+    {
+        this.lastMovedPlayerIndex += 1;
+        this.lastMovedPlayerIndex %= this.players.size();
+        Move move = this.players.get(this.lastMovedPlayerIndex).makeMove(this.board);
+        this.moves.add(move);
+        move.getCell().setSymbol(move.getSymbol());
+        ++numberOfFilledCells;
+        for(GameWinningStrategy strategy : gameWinningStrategies)
+        {
+            if(strategy.checkIfWon(board , this.players.get(lastMovedPlayerIndex) , move.getCell()))
+            {
+                gameStatus = GameStatus.ENDED;
+                winner = this.players.get(lastMovedPlayerIndex);
+                return;
+            }
+        }
+
+        if(numberOfFilledCells == this.board.getDimension() * this.board.getDimension())
+        {
+            gameStatus = GameStatus.DRAW;
+            return;
+        }
+    }
+
+    public boolean undo() throws EmptyMovesUndoOperationException {
+        if(this.moves.size() == 0)
+            throw new EmptyMovesUndoOperationException();
+
+        Move lastMove = this.moves.get(this.moves.size() - 1);
+        Cell relevantCell = lastMove.getCell();
+        relevantCell.clearCell();
+        this.lastMovedPlayerIndex -=1;
+        this.lastMovedPlayerIndex = (this.lastMovedPlayerIndex + this.players.size()) % this.players.size();
+        this.moves.remove(lastMove);
+        return true;
+    }
+
+    public Player getWinner()
+    {
+        return this.winner;
+    }
+
+    public GameStatus getGameStatus()
+    {
+        return this.gameStatus;
+    }
+    public Board getBoard()
+    {
+        return board;
     }
 
     public static Builder create()
@@ -56,6 +113,12 @@ public class Game {
             return this;
         }
 
+        public Builder addPlayers(List<Player> players)
+        {
+            this.players.addAll(players);
+            return this;
+        }
+
         public Builder setDimension(int dimension)
         {
             this.dimension = dimension;
@@ -65,6 +128,12 @@ public class Game {
         public Builder addGameWinningStrategy(GameWinningStrategy strategy)
         {
             this.gameWinningStrategies.add(strategy);
+            return this;
+        }
+
+        public Builder addGameWinningStrategies(List<GameWinningStrategy> gameWinningStrategies)
+        {
+            this.gameWinningStrategies.addAll(gameWinningStrategies);
             return this;
         }
 

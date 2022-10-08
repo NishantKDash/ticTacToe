@@ -5,5 +5,5 @@ import main.java.models.Cell;
 import main.java.models.Player;
 
 public interface GameWinningStrategy {
-    boolean checkIfWon(Board board , Player player);
+    boolean checkIfWon(Board board , Player player , Cell cell);
 }

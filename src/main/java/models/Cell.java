@@ -5,18 +5,23 @@ public class Cell {
     private int column;
     private Symbol symbol = null;
 
-    private int getRow()
+    public int getRow()
     {
         return row;
     }
-    private int getColumn()
+     public int getColumn()
     {
         return column;
     }
 
-    private Symbol getSymbol()
+    public Symbol getSymbol()
     {
         return symbol;
+    }
+
+    public void setSymbol(Symbol symbol)
+    {
+        this.symbol = symbol;
     }
     public void SetSymbol(Symbol symbol)
     {
